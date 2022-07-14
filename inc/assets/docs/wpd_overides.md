@@ -133,3 +133,39 @@ PLUGINS\WPDocsify::vue('vue@2','development');
 PLUGINS\WPDocsify::vue(false);
 
 ```
+
+## Vue Global Scope
+If you would like to share your wordpress instance data to your Vue within your documentation you can use the following class
+```php
+/* functions.php */
+
+/* Is not required rename the namespace using MBC\inc before the class is fine */
+use MBC\inc as PLUGINS;
+
+/* Vue Global */
+PLUGINS\WPDocsify::VueGlobal(array(
+    /* map all users usernames */
+    'users'=> array_map(function($user){
+        return $user->user_login;
+    }, get_users())
+));
+```
+In your Markdown where you have your Vue
+```html
+<!-- vue.md -->
+<div id="vue3app">
+    <!-- Foreach user in global users with key of user -->
+    <ul>
+        <li v-for="user in global.users" :key="user">
+            {{user}}
+        </li>
+    </ul>
+</div>
+<script>
+ Vue.createApp({
+    data: () => ({
+      global: window.VueGlobal, /* From VueGlobal */
+    }),
+  }).mount('#vue3app');
+</script>
+```
