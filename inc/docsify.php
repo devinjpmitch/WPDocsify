@@ -107,6 +107,12 @@ class WPDocsify {
 		);
 	}
 
+	/* Vue Global scope */
+	public static function VueGlobal($global = array()){
+		if(empty($global)) return;
+		self::$vue['global'] = array_merge(self::$vue['global'],$global);
+	}
+
 	/* register prism langauges */
 	public static function prism($languages = array()){
 		if(empty($languages)) return;
@@ -324,6 +330,7 @@ class WPDocsify {
 		}
 		/* enqueue docsify vue core */
 		if(!empty(self::$vue) && self::$vue['enabled'] === true){
+			if(isset(self::$vue['global'])) echo "<script>window.VueGlobal = ".json_encode(self::$vue['global']).";</script>";
 			switch(self::$vue['version']){
 				case 'vue@3':
 					$control = self::$vue['control'] === 'production' ? 'vue.global.prod' : 'vue.global';
