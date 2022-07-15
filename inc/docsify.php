@@ -110,7 +110,7 @@ class WPDocsify {
 	/* Vue Global scope */
 	public static function VueGlobal($global = array()){
 		if(empty($global)) return;
-		self::$vue['global'] = array_merge(self::$vue['global'],$global);
+		self::$vue['global'] = array_merge(self::$vue['global']??array(),$global);
 	}
 
 	/* register prism langauges */
