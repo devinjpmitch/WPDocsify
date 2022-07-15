@@ -345,7 +345,6 @@ Vue content can mounted using a `<script>` tag in your markdown pages.
   ```
 - Docsify will not mount an existing Vue instance or an element that contains an existing Vue instance.
 - Docsify will automatically destroy/unmount all Vue instances it creates before each page load.
-
 </div>
 
 <!-- Vue 3.x  -->
@@ -363,6 +362,7 @@ Vue content can mounted using a `<script>` tag in your markdown pages.
         },
       },
      data: () => ({
+      global: window.WPDocsify.globals,
       count: 0,
       message: 'Hello, World!',
       images: [

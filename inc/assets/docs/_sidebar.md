@@ -3,6 +3,8 @@
   - [Getting Started](wpd_gettingstarted.md)
   - [Adding Custom Pages](wpd_custompages.md)
   - [Prism Highlighter](wpd_prism.md)
+  - [Lifecycles](wpd_lifecycles.md)
+  - [Globals](wpd_globals.md)
   - [Overides](wpd_overides.md)
 
 - Getting started

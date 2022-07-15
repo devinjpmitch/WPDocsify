@@ -134,37 +134,100 @@ PLUGINS\WPDocsify::vue(false);
 
 ```
 
-## Vue Global Scope
-If you would like to share your wordpress instance data to your Vue within your documentation you can use the following class
+## Lifecycles
+Docsify has a set of defined [Lifecycles](write-a-plugin.md#lifecycle-hooks) simply the cycles allow for you to change and interact with the documentation through out there respect lifecycle
+this can be useful when creating a plugin that alters the way the documentation is presented.
+
+## Registering LifeCycles
+To register lifecyles you can use the following class function.  
+
+!> Note: all lifecyles are written in javascript so that must be required in.
+
 ```php
 /* functions.php */
 
 /* Is not required rename the namespace using MBC\inc before the class is fine */
 use MBC\inc as PLUGINS;
 
-/* Vue Global */
-PLUGINS\WPDocsify::VueGlobal(array(
-    /* map all users usernames */
-    'users'=> array_map(function($user){
-        return $user->user_login;
-    }, get_users())
+PLUGINS\WPDocsify::lifecycle(array(
+    /* Variables available: hook, vm */
+    "init"=> array(
+        /* example we wish to load init.js */
+        stylesheet_directory_uri().'/assets/js/init.js',
+        //stylesheet_directory_uri().'/assets/js/test.js'
+    ),
+    "beforeEach"=> array(
+        /* Variables available: content */
+    ),
+    "afterEach"=> array(
+        /* Variables available: html, next */
+        stylesheet_directory_uri().'/assets/js/voul_count.js'
+    ),
+    "doneEach"=> array(),
+    "mounted"=> array(),
+    "ready"=> array()
 ));
 ```
-In your Markdown where you have your Vue
+```js
+/* init.js */
+(function () {
+    /* console log vm */
+    console.log('init vm:',vm);
+})();
+```
+```js
+/* voul_count.js */
+console.log((html.match(/[aeiou]/gi) || []).length);
+```
+
+## Globals
+WPDocsify allows for globals in your markdown available through `window.WPDocsify` this allows you to pass information from php into your markdown.  
+as an example passing through a list of users in the site or the current plugins installed.
+
+## Registering Globals
+To register globals you can use the following class function
+
+```php
+/* functions.php */
+
+/* Is not required rename the namespace using MBC\inc before the class is fine */
+use MBC\inc as PLUGINS;
+
+PLUGINS\WPDocsify::globals(array(
+    'installed_plugins'=> array_map(function($plugin){ 
+        return $plugin['Name']; 
+    }, get_plugins()),
+    'example'=> 'Hello World'
+));
+```
+
+## Using Globals
+To globals in your markdown you can use the following prefix `[(*)]`
+
+```md
+[(example)]
+```
+**Result**
+```html
+Hello World
+```
+## Vue Implementation
+If you would like use the global data in Vue within your documentation you can use in by passing it into the data
+
 ```html
 <!-- vue.md -->
 <div id="vue3app">
-    <!-- Foreach user in global users with key of user -->
+    <!-- Foreach plugin in global installed_plugins array with key of plugin -->
     <ul>
-        <li v-for="user in global.users" :key="user">
-            {{user}}
+        <li v-for="plugin in global.installed_plugins" :key="plugin">
+            {{plugin}}
         </li>
     </ul>
 </div>
 <script>
  Vue.createApp({
     data: () => ({
-      global: window.VueGlobal, /* From VueGlobal */
+      global: window.WPDocsify.globals,
     }),
   }).mount('#vue3app');
 </script>

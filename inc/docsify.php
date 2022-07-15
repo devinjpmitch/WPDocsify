@@ -39,6 +39,17 @@ class WPDocsify {
 		"control"=> "production",
 		"enabled"=> true
 	);
+	/* plugin Docsify Lifecylce */
+	private static $lifecycle = array(
+		"init"=> array(),
+		"beforeEach"=> array(),
+		"afterEach"=> array(),
+		"doneEach"=> array(),
+		"mounted"=> array(),
+		"ready"=> array()
+	);
+	/* globals wordpress */
+	private static $globals = array();
 
 	/* Setup for non configured */
 	public static function Setup(){
@@ -69,7 +80,6 @@ class WPDocsify {
 			)
 		);
 	}
-
 	/* configure docsify */
 	public static function config($config = array()){
 		if(empty($config)) return;
@@ -96,6 +106,15 @@ class WPDocsify {
 		foreach($plugins as $plugin) self::$plugins[] = $plugin;
 	}
 
+	/* plugin lifecycle */
+	public static function lifecycle($lifecycle = array()){
+		if(empty($lifecycle)) return;
+		foreach($lifecycle as $key => $value){
+			if(!isset(self::$lifecycle[$key])) continue;
+			self::$lifecycle[$key] = array_merge(self::$lifecycle[$key], $value);
+		}
+	}
+
 	/* Enable Vue.js */
 	public static function Vue($version = 'vue@3',$control = 'production'){
 		/* disable vue */
@@ -108,9 +127,9 @@ class WPDocsify {
 	}
 
 	/* Vue Global scope */
-	public static function VueGlobal($global = array()){
+	public static function global($global = array()){
 		if(empty($global)) return;
-		self::$vue['global'] = array_merge(self::$vue['global']??array(),$global);
+		self::$globals = array_merge(self::$globals,$global);
 	}
 
 	/* register prism langauges */
@@ -275,9 +294,62 @@ class WPDocsify {
 			);
 		}
 	}
+	
+	private static function getLifecycle(){
+		$format = '(function () {
+			var WPDocsify = function(hook, vm){hook.init(function(){%s}); hook.beforeEach(function(content){%s return content;}); hook.afterEach(function(html, next){%s next(html);}); hook.doneEach(function(){%s}); hook.mounted(function(){%s}); hook.ready(function(){%s});}
+			$docsify = window.$docsify || {};
+			$docsify.plugins = [].concat(WPDocsify, $docsify.plugins || []);
+		})();';
+		/* lifecycle array */
+		$lifecycle = array();
+		foreach(self::$lifecycle as $key => $value) {
+			/* allow key to be in lifecycle */
+			$lifecycle[$key] = "";
+			/* if not array continue */
+			if(!is_array($value)) continue;
+			/* single life cycle array */
+			$single_lifecycle = array();
+			/* require each javascript */
+			foreach ($value as $key => $plugin_uri) {
+				if(empty($plugin_uri) || !is_string($plugin_uri) || !file_exists($plugin_uri)) continue;
+				$single_lifecycle[] = file_get_contents($plugin_uri);
+			}
+			if($key === 'beforeEach') $single_lifecycle[] = file_get_contents( __DIR__.'/assets/js/global.js' );
+			if($key === 'afterEach') $single_lifecycle[] = file_get_contents( __DIR__.'/assets/js/footer.js' );
+			/* combine all javascript to lifecycle key */
+			$lifecycle[$key] = implode(" ", $single_lifecycle);
+		}
+		return sprintf(
+			$format,
+			$lifecycle['init'],
+			$lifecycle['beforeEach'],
+			$lifecycle['afterEach'],
+			$lifecycle['doneEach'],
+			$lifecycle['mounted'],
+			$lifecycle['ready']
+		);
+	}
+
+
+	
+	private static function WPDocsify(){
+		$globals = self::$globals;
+		add_action('admin_footer', function () use ($globals) {
+			$wpdocsify_js = file_get_contents( __DIR__.'/assets/js/wpdocsify.min.js' );
+			$format = '"<script type="text/javascript">%s window.WPDocsify.globals = %s;</script>"';
+			echo sprintf(
+				$format,
+				$wpdocsify_js,
+				json_encode(self::$globals)
+			);
+		});
+	}
 
 	/* Private Handler for documentation library page */
 	private static function Handler($dir,$config){
+
+		self::WPDocsify();
 		/* check if directory exists */
 		$dir_absolute = str_replace(get_site_url(), untrailingslashit(get_home_path()), $dir);
 		if(!is_dir($dir_absolute)){ 
@@ -297,8 +369,6 @@ class WPDocsify {
 		}
 		/* enqueue Wordpress styling */
 		wp_enqueue_style('wp-docsify-wpstyle', plugins_url('/assets/css/style.css', __FILE__));
-		/* enqueue Wordpress Javascript */
-		wp_enqueue_script('wp-docsify-wpjs', plugins_url('/assets/js/wp.min.js', __FILE__));
 		/* check if stylesheet loaded */
 		if(!empty(self::$stylesheet) && self::$replace_stylesheet){
 			/* enqueue custom stylesheet */
@@ -313,6 +383,15 @@ class WPDocsify {
 		wp_enqueue_style('wp-prism-style', plugins_url('/assets/css/prism.min.css', __FILE__));
 		/* enqueue Docsify Javascript */
 		wp_enqueue_script('wp-docsify-minjs', plugins_url('/assets/js/docsify.min.js', __FILE__));
+
+		
+
+
+
+		
+
+
+
 		/* enqueue prism languages */
 		if(!empty(self::$prism) && self::$prism['languages']){
 			$version = self::$prism['version'];
@@ -330,7 +409,6 @@ class WPDocsify {
 		}
 		/* enqueue docsify vue core */
 		if(!empty(self::$vue) && self::$vue['enabled'] === true){
-			if(isset(self::$vue['global'])) echo "<script>window.VueGlobal = ".json_encode(self::$vue['global']).";</script>";
 			switch(self::$vue['version']){
 				case 'vue@3':
 					$control = self::$vue['control'] === 'production' ? 'vue.global.prod' : 'vue.global';
@@ -342,8 +420,17 @@ class WPDocsify {
 					break;
 			}
 		}
+
+
+
+	
+
+
 		/* display docsify */
-		$format = '<section id="wpdocsify"><div id="docsify"></div></section><script>window.$docsify = %s;</script>';
+		$format = '<section id="wpdocsify"><div id="docsify"></div></section><script>
+		window.$docsify = %s;
+		%s
+		</script>';
 		echo sprintf(
 			$format,
 			/* merge docsify config */
@@ -352,8 +439,11 @@ class WPDocsify {
 					"el"=> "#docsify", /* docsify element */
 					"basePath"=> $dir,  /* base directory */
 				),$config)
-			)
+			),
+			self::getLifecycle()
 		);
+
+		
 		/* return early */
 		return;
 	}

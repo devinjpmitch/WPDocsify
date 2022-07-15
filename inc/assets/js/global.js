@@ -1,0 +1,1 @@
+content = content.replace(/\[\((.*?)\)\]/g, (match, p1) => window.WPDocsify.globals[p1]??match);
