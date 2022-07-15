@@ -348,7 +348,6 @@ class WPDocsify {
 
 	/* Private Handler for documentation library page */
 	private static function Handler($dir,$config){
-
 		self::WPDocsify();
 		/* check if directory exists */
 		$dir_absolute = str_replace(get_site_url(), untrailingslashit(get_home_path()), $dir);
@@ -383,15 +382,6 @@ class WPDocsify {
 		wp_enqueue_style('wp-prism-style', plugins_url('/assets/css/prism.min.css', __FILE__));
 		/* enqueue Docsify Javascript */
 		wp_enqueue_script('wp-docsify-minjs', plugins_url('/assets/js/docsify.min.js', __FILE__));
-
-		
-
-
-
-		
-
-
-
 		/* enqueue prism languages */
 		if(!empty(self::$prism) && self::$prism['languages']){
 			$version = self::$prism['version'];
@@ -420,12 +410,6 @@ class WPDocsify {
 					break;
 			}
 		}
-
-
-
-	
-
-
 		/* display docsify */
 		$format = '<section id="wpdocsify"><div id="docsify"></div></section><script>
 		window.$docsify = %s;
@@ -442,8 +426,6 @@ class WPDocsify {
 			),
 			self::getLifecycle()
 		);
-
-		
 		/* return early */
 		return;
 	}
