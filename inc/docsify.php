@@ -58,12 +58,14 @@ class WPDocsify {
 	/* Setup for non configured */
 	public static function Setup(){
 		/* setup site url and extension */
+		$ssl = is_ssl();
+		$ssl = $ssl ? 'https://' : 'http://';
 		self::$site_url = preg_replace("#^https?://#", "", get_site_url());
 		if(strpos(self::$site_url, "/") !== false){
 			$site_url_arr = explode("/", self::$site_url);
 			self::$site_ext = $site_url_arr[count($site_url_arr)-1];
-		}
-
+			self::$site_url = $ssl.$site_url_arr[0];
+		} else self::$site_url = $ssl.self::$site_url;
 		/* Set Default base directory */
 		$location = '';
 		if(empty(self::$baseDir)) {
@@ -362,6 +364,16 @@ class WPDocsify {
 		self::WPDocsify();
 		/* check if directory exists */
 		$dir_absolute = str_replace(self::$site_url, untrailingslashit(get_home_path()), $dir);
+		//if $dir_absolute is a file
+		if(!is_file($dir_absolute.'_coverpage.md')){
+			if(!is_file($dir_absolute.'quickstart.md')) {
+				$error = array(
+					"title"=>"Oops!",
+					"error"=>"Quick quickstart.md or _coverpage.md not found. please set your coverpage."
+				); 
+				return include __dir__ . "/assets/error.php"; 
+			} else $config['homepage'] = 'quickstart.md';
+		}
 		if(!is_dir($dir_absolute)){ 
 			$error = array(
 				"title"=>"Oops!",
