@@ -7,6 +7,10 @@
  */
 namespace MBC\inc;
 class WPDocsify {
+	/* private string site url */
+	private static $site_url = "";
+	/* private string site ext */
+	private static $site_ext = "";
 	/* private array of pages */
 	private static $pages = array();
 	/* private array of admin page settings */
@@ -53,6 +57,13 @@ class WPDocsify {
 
 	/* Setup for non configured */
 	public static function Setup(){
+		/* setup site url and extension */
+		self::$site_url = preg_replace("#^https?://#", "", get_site_url());
+		if(strpos(self::$site_url, "/") !== false){
+			$site_url_arr = explode("/", self::$site_url);
+			self::$site_ext = $site_url_arr[count($site_url_arr)-1];
+		}
+
 		/* Set Default base directory */
 		$location = '';
 		if(empty(self::$baseDir)) {
@@ -150,7 +161,7 @@ class WPDocsify {
 		if(!isset($arr['location'])) $arr['location'] = self::$baseDir;
 		else {
 			/* determine Base Directory */
-			$dir_absolute = str_replace(get_site_url(), trailingslashit(get_home_path()), $arr['location']);
+			$dir_absolute = str_replace(self::$site_url, trailingslashit(get_home_path()), $arr['location']);
 			/* if stylesheet directory documentation does not exist revert to $baseDir */
 			if(!is_dir($dir_absolute)) $arr['location'] = self::$baseDir;
 		}
@@ -350,7 +361,7 @@ class WPDocsify {
 	private static function Handler($dir,$config){
 		self::WPDocsify();
 		/* check if directory exists */
-		$dir_absolute = str_replace(get_site_url(), untrailingslashit(get_home_path()), $dir);
+		$dir_absolute = str_replace(self::$site_url, untrailingslashit(get_home_path()), $dir);
 		if(!is_dir($dir_absolute)){ 
 			$error = array(
 				"title"=>"Oops!",
