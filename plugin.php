@@ -7,7 +7,7 @@
  * https://docsify.js.org/
  *
  * @link		https://github.com/mitchell-b-chelin/WPDocsify/blob/main/LICENSE
- * @since 		1.0.2
+ * @since 		1.0.3
  * @package		MBC
  *
  * @wordpress-plugin
