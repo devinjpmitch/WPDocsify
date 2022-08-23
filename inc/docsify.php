@@ -365,14 +365,15 @@ class WPDocsify {
 		/* check if directory exists */
 		$dir_absolute = str_replace(self::$site_url, untrailingslashit(get_home_path()), $dir);
 		//if $dir_absolute is a file
-		if(!is_file($dir_absolute.'_coverpage.md')){
-			if(!is_file($dir_absolute.'quickstart.md')) {
+		if(!is_file($dir_absolute.$config['homepage'])){
+			$config['homepage'] = 'quickstart.md';
+			if(!is_file($dir_absolute.$config['homepage'])) {
 				$error = array(
 					"title"=>"Oops!",
 					"error"=>"Quick quickstart.md or _coverpage.md not found. please set your coverpage."
 				); 
 				return include __dir__ . "/assets/error.php"; 
-			} else $config['homepage'] = 'quickstart.md';
+			} 
 		}
 		if(!is_dir($dir_absolute)){ 
 			$error = array(

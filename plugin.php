@@ -7,14 +7,14 @@
  * https://docsify.js.org/
  *
  * @link		https://github.com/mitchell-b-chelin/WPDocsify/blob/main/LICENSE
- * @since 		1.0.4
+ * @since 		1.0.5
  * @package		MBC
  *
  * @wordpress-plugin
  * Plugin Name:	   	WordPress Docsify
  * Plugin URI:		https://github.com/mitchell-b-chelin/WPDocsify/blob/main/LICENSE
  * Description:	   	A simple and lightweight plugin to create a Wordpress Documentation.
- * Version:		   	1.0.4
+ * Version:		   	1.0.5
  * Author:			Mitchell-Blair Chelin
  * Author URI:		https://github.com/mitchell-b-chelin/
  * License:		   	MIT
