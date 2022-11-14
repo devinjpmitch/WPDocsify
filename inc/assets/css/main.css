@@ -1,0 +1,18 @@
+li a .with-icon {
+    display: grid;
+    grid-template-columns: 15px auto;
+    grid-gap: 5px;
+    align-items: center;
+}
+li a .with-icon svg {
+    width: 15px;
+}
+li a .with-icon svg path {
+    fill: #f0f6fcb3;
+}
+li a:hover .with-icon svg path {
+    fill: #72aee6;
+}
+li.current .with-icon svg path {
+    fill: #fff !important;
+}
