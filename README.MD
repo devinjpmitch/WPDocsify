@@ -1,4 +1,4 @@
-!> note the following documentation has not been updated to support the new registeration methods, Please wait till release of 2.0 for the full release of patch notes & documentation.
+<h2 style="color:red">note the following documentation has not been updated to support the new registeration methods, Please wait till release of 2.0 for the full release of patch notes & documentation.</h2>
 
 <p align="center">
     <img alt="WPDocsify" src="./inc/assets/docs/_images/WPDocsify.png">
