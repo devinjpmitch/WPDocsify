@@ -277,7 +277,7 @@ class WPDocsify {
 		add_menu_page(
 			__(self::$adminpage['domain'], 'textdomain'),
 			self::$adminpage['name'],
-			'manage_options',
+			'read',
 			self::$adminpage['slug'],
 			function() {
 				self::Handler(self::$adminpage['location'],self::$adminpage['config']);
@@ -299,7 +299,7 @@ class WPDocsify {
 				self::$adminpage['slug'],
 				$sub_page['title'],
 				isset($sub_page['label']) ? $sub_page['label'] : $sub_page['title'],
-				'manage_options',
+				'read',
 				$sub_page['slug'],
 				function() use($sub_page) {
 					self::Handler($sub_page['location'],$sub_page['config']);
