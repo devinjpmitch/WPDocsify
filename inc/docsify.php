@@ -156,6 +156,15 @@ class WPDocsify {
 		self::$prism = $languages;
 	}
 
+	public static function abs_path_to_url( $path = '' ) {
+    $url = str_replace(
+        wp_normalize_path( untrailingslashit( ABSPATH ) ),
+        site_url(),
+        wp_normalize_path( $path )
+    );
+    return esc_url_raw( $url );
+}
+
 	/* Register default Admin Documentation Page */
 	public static function adminRegister($arr = array()){
 		if(empty($arr)) return;
@@ -163,7 +172,13 @@ class WPDocsify {
 		if(!isset($arr['location'])) $arr['location'] = self::$baseDir;
 		else {
 			/* determine Base Directory */
-			$dir_absolute = str_replace(self::$site_url, trailingslashit(get_home_path()), $arr['location']);
+			$dir_absolute = str_replace(self::$site_url, trailingslashit(ABSPATH), $arr['location']);
+
+			/* fixing the mess */
+			$dir_absolute = $arr['location'];
+			self::$site_url = get_home_url();
+			$arr['location'] = self::abs_path_to_url($arr['location']);
+			
 			/* if stylesheet directory documentation does not exist revert to $baseDir */
 			if(!is_dir($dir_absolute)) $arr['location'] = self::$baseDir;
 		}
@@ -172,6 +187,7 @@ class WPDocsify {
 		/* set admin page */
 		self::$adminpage = $arr;
 	}
+
 
 	/* Register new Sub Documention Pages */
 	public static function register($arr) {
